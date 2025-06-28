@@ -137,57 +137,5 @@ async def update_room_by_number(room_number: str, room_update: RoomUpdate):
     )
 
 
-@app.delete("/rooms/{room_id}", response_model=dict)
-async def checkout_room(room_id: int):
-    """Hacer checkout de una habitación (eliminar)"""
-    success = room_service.delete_room(room_id)
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Habitación con ID {room_id} no encontrada",
-        )
-
-    return {
-        "success": True,
-        "message": f"Checkout realizado exitosamente para habitación ID {room_id}",
-    }
-
-
-@app.delete("/rooms/number/{room_number}", response_model=dict)
-async def checkout_room_by_number(room_number: str):
-    """Hacer checkout de una habitación por número de habitación"""
-    room = room_service.get_room_by_number(room_number)
-    if not room:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Habitación {room_number} no encontrada",
-        )
-
-    success = room_service.delete_room(room.id)
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Error al hacer checkout de habitación {room_number}",
-        )
-
-    return {
-        "success": True,
-        "message": f"Checkout realizado exitosamente para habitación {room_number}",
-    }
-
-
-@app.delete("/rooms", response_model=dict)
-async def clear_all_rooms():
-    """Limpiar todas las habitaciones (fin de sesión)"""
-    room_service.clear_all_rooms()
-    return {"success": True, "message": "Todas las habitaciones han sido liberadas"}
-
-
-@app.get("/health")
-async def health_check():
-    """Endpoint de salud"""
-    return {"status": "healthy", "service": "room-management-api"}
-
-
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="info")
